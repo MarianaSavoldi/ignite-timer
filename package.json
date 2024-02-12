@@ -12,9 +12,11 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "styled-components": "^6.1.8"
+    "styled-components": "^6.1.8",
+    "lint": "eslint src --ext .ts,.tsx"
   },
   "devDependencies": {
+    "@rocketseat/eslint-config": "^2.2.2",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "@types/styled-components": "^5.1.34",
