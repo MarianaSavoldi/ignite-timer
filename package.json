@@ -6,14 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "styled-components": "^6.1.8",
-    "lint": "eslint src --ext .ts,.tsx"
+    "react-router-dom": "^6.22.0",
+    "styled-components": "^6.1.8"
   },
   "devDependencies": {
     "@rocketseat/eslint-config": "^2.2.2",
