@@ -32,12 +32,13 @@ interface Cycle {
   minutesAmount: number
   startDate: Date
   interruptedDate?: Date
+  finishedDate?: Date
 }
 
 export function Home() {
   const [cycles, setCycles] = useState<Cycle[]>([])
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
-  const [amountSecondsPassed, setAmountsSecondsPassed] = useState(0)
+  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
 
   const { register, handleSubmit, watch, reset } = useForm<NewCycleFormData>({
     resolver: zodResolver(newCycleValidationSchema),
@@ -72,14 +73,14 @@ export function Home() {
 
     setCycles((prevState) => [...prevState, newCycle])
     setActiveCycleId(newCycleId)
-    setAmountsSecondsPassed(0)
+    setAmountSecondsPassed(0)
 
     reset()
   }
 
   const handleInterruptCycle = () => {
-    setCycles(
-      cycles.map((cycle) => {
+    setCycles((state) =>
+      state.map((cycle) => {
         if (cycle.id === activeCycleId) {
           return { ...cycle, interruptedDate: new Date() }
         } else {
@@ -95,16 +96,34 @@ export function Home() {
     let interval: number
     if (currentActiveCycle) {
       interval = setInterval(() => {
-        setAmountsSecondsPassed(
-          differenceInSeconds(new Date(), currentActiveCycle.startDate),
+        const secondsDifference = differenceInSeconds(
+          new Date(),
+          currentActiveCycle.startDate,
         )
+
+        if (secondsDifference >= totalSeconds) {
+          setCycles((state) =>
+            state.map((cycle) => {
+              if (cycle.id === activeCycleId) {
+                return { ...cycle, finishedDate: new Date() }
+              } else {
+                return cycle
+              }
+            }),
+          )
+          setAmountSecondsPassed(totalSeconds)
+
+          clearInterval(interval)
+        } else {
+          setAmountSecondsPassed(secondsDifference)
+        }
       }, 1000)
     }
 
     return () => {
       clearInterval(interval)
     }
-  }, [currentActiveCycle])
+  }, [currentActiveCycle, totalSeconds, activeCycleId])
 
   useEffect(() => {
     if (currentActiveCycle) {
