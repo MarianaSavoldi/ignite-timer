@@ -59,16 +59,6 @@ export function Home() {
   const minutes = String(minutesAmount).padStart(2, '0')
   const seconds = String(secondsAmount).padStart(2, '0')
 
-  useEffect(() => {
-    if (currentActiveCycle) {
-      setInterval(() => {
-        setAmountsSecondsPassed(
-          differenceInSeconds(new Date(), currentActiveCycle.startDate),
-        )
-      }, 1000)
-    }
-  }, [currentActiveCycle])
-
   const handleCreateNewCycle = (data: NewCycleFormData) => {
     const newCycleId = String(new Date().getTime())
     const newCycle: Cycle = {
@@ -80,9 +70,31 @@ export function Home() {
 
     setCycles((prevState) => [...prevState, newCycle])
     setActiveCycleId(newCycleId)
+    setAmountsSecondsPassed(0)
 
     reset()
   }
+
+  useEffect(() => {
+    let interval: number
+    if (currentActiveCycle) {
+      interval = setInterval(() => {
+        setAmountsSecondsPassed(
+          differenceInSeconds(new Date(), currentActiveCycle.startDate),
+        )
+      }, 1000)
+    }
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [currentActiveCycle])
+
+  useEffect(() => {
+    if (currentActiveCycle) {
+      document.title = `Timer - ${minutes}:${seconds}`
+    }
+  }, [currentActiveCycle, minutes, seconds])
 
   return (
     <HomeContainer>
