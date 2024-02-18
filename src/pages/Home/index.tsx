@@ -87,6 +87,7 @@ export function Home() {
         }
       }),
     )
+    document.title = 'Ignite Timer'
     setActiveCycleId(null)
   }
 
