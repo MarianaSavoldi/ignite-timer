@@ -1,10 +1,17 @@
-import { ReactNode, createContext, useReducer, useState } from 'react'
+import {
+  ReactNode,
+  createContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react'
 import { cyclesReducer } from '../reducers/cycles/reducer'
 import {
   addNewCycleAction,
   interruptCurrentCycleAction,
   markCurrentCycleAsFinishedAction,
 } from '../reducers/cycles/actions'
+import { differenceInSeconds } from 'date-fns'
 
 export interface Cycle {
   id: string
@@ -40,16 +47,37 @@ export const CyclesContext = createContext({} as CyclesContextType)
 export function CyclesContextProvider({
   children,
 }: CyclesContextContainerProps) {
-  const [cyclesState, dispatch] = useReducer(cyclesReducer, {
-    cycles: [],
-    activeCycleId: null,
-  })
+  const [cyclesState, dispatch] = useReducer(
+    cyclesReducer,
+    {
+      cycles: [],
+      activeCycleId: null,
+    },
+    (initialState) => {
+      const storageStateAsJson = localStorage.getItem(
+        '@ignite-timer:cycles-state-1.0.0',
+      )
+      if (storageStateAsJson) {
+        return JSON.parse(storageStateAsJson)
+      }
 
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
+      return initialState
+    },
+  )
 
   const { cycles, activeCycleId } = cyclesState
 
   const currentActiveCycle = cycles.find((cycle) => cycle.id === activeCycleId)
+
+  const [amountSecondsPassed, setAmountSecondsPassed] = useState(() => {
+    if (currentActiveCycle) {
+      return differenceInSeconds(
+        new Date(),
+        new Date(currentActiveCycle.startDate),
+      )
+    }
+    return 0
+  })
 
   const createNewCycle = (data: CreateCycleData) => {
     const newCycleId = String(new Date().getTime())
@@ -78,6 +106,11 @@ export function CyclesContextProvider({
   const setSecondsPassed = (seconds: number) => {
     setAmountSecondsPassed(seconds)
   }
+
+  useEffect(() => {
+    const stateJson = JSON.stringify(cyclesState)
+    localStorage.setItem('@ignite-timer:cycles-state-1.0.0', stateJson)
+  }, [cyclesState])
 
   return (
     <CyclesContext.Provider
